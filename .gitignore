@@ -1,0 +1,11 @@
+# Generated stuff
+*.o
+moc_*.cpp
+ui_*.h
+Makefile
+
+# The binaries
+/MultilineCheckBox
+
+# User configuration files
+*.pro.user
