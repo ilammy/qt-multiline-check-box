@@ -14,10 +14,12 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 SOURCES += \
     main.cpp \
-    MainWindow.cpp
+    MainWindow.cpp \
+    MultilineCheckBox.cpp \
 
 HEADERS += \
-    MainWindow.h
+    MainWindow.h \
+    MultilineCheckBox.h \
 
 FORMS += \
     MainWindow.ui

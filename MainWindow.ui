@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>625</width>
+    <width>836</width>
     <height>70</height>
    </rect>
   </property>
@@ -23,9 +23,9 @@
      </widget>
     </item>
     <item>
-     <widget class="QCheckBox" name="checkBox2">
+     <widget class="MultilineCheckBox" name="checkBox2">
       <property name="text">
-       <string>Check box with very long descriptive text that can definitely span multiple lines</string>
+       <string>Check box with very long descriptive text that can definitely span a couple of lines and even more than that</string>
       </property>
      </widget>
     </item>
@@ -33,6 +33,13 @@
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>MultilineCheckBox</class>
+   <extends>QCheckBox</extends>
+   <header>MultilineCheckBox.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
