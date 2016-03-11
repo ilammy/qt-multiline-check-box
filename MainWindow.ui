@@ -18,14 +18,14 @@
     <item>
      <widget class="QCheckBox" name="checkBox1">
       <property name="text">
-       <string>Check box with short text</string>
+       <string>&amp;Check box with short text</string>
       </property>
      </widget>
     </item>
     <item>
      <widget class="MultilineCheckBox" name="checkBox2">
       <property name="text">
-       <string>Check box with very long descriptive text that can definitely span a couple of lines and even more than that</string>
+       <string>&amp;Check box with very long descriptive text that can definitely span a couple of lines and even more than that</string>
       </property>
      </widget>
     </item>

@@ -131,7 +131,13 @@ void MultilineCheckBox::recalculateTextDimensions() const
 
     m_textRect = style()->subElementRect(QStyle::SE_CheckBoxContents, &option, this);
 
-    m_textRect.adjust(0, 4, 0, -4);
+#define ADJUST 1
+
+#if ADJUST
+    hMargin += 1;
+    vMargin += 3;
+    m_textRect.adjust(0, 2, 0, 2);
+#endif
 
     m_focusRect = option.fontMetrics.boundingRect(m_textRect, m_textFlags, option.text).adjusted(-hMargin, -vMargin, +hMargin, +vMargin);
 }
@@ -245,8 +251,11 @@ QSize MultilineCheckBox::sizeForWidth(int width) const
     {
         br = fontMetrics().boundingRect(x, 0, width / 4, 2000, flags, text());
     }
-
-    const QSize contentsSize(x + br.width() + hextra, br.height() + vextra + 8);
+#if ADJUST
+    const QSize contentsSize(x + br.width() + hextra, br.height() + vextra + 4);
+#else
+    const QSize contentsSize(x + br.width() + hextra, br.height() + vextra);
+#endif
     return (contentsSize + contentMargins).expandedTo(minimumSize());
 
 
