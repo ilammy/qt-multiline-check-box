@@ -12,6 +12,13 @@ MainWindow::MainWindow(QWidget *parent)
     ui(new Ui::MainWindow())
 {
     ui->setupUi(this);
+
+    ui->checkBox1->setIcon(QIcon::fromTheme("edit-redo"));
+    ui->checkBox2->setIcon(QIcon::fromTheme("edit-redo"));
+    ui->checkBox3->setIcon(QIcon::fromTheme("edit-undo"));
+    ui->checkBox4->setIcon(QIcon::fromTheme("edit-undo"));
+
+    setLayoutDirection(Qt::RightToLeft);
 }
 
 MainWindow::~MainWindow()

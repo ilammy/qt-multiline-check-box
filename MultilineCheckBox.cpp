@@ -54,6 +54,7 @@ void MultilineCheckBox::paintEvent(QPaintEvent*)
         QStyleOptionButton checkBoxOption = option;
         checkBoxOption.state &= ~QStyle::State_HasFocus;
         checkBoxOption.text.clear();
+        checkBoxOption.icon = QIcon();
         painter.drawControl(QStyle::CE_CheckBox, checkBoxOption);
     }
 #if 0
@@ -62,36 +63,24 @@ void MultilineCheckBox::paintEvent(QPaintEvent*)
     }
 
 #else
+
     {
-        // As in QCommonStyle::drawControl(CE_CheckBoxLabel)
-
         unsigned alignment = QStyle::visualAlignment(option.direction, Qt::AlignLeft | Qt::AlignVCenter);
-
-        QRect textRect = m_textRect;
 
         if (!option.icon.isNull())
         {
             QPixmap pixmap = option.icon.pixmap(option.iconSize, option.state & QStyle::State_Enabled ? QIcon::Normal : QIcon::Disabled);
 
-            painter.drawItemPixmap(option.rect, alignment, pixmap);
-
-            if (option.direction == Qt::RightToLeft)
-            {
-                textRect.setRight(textRect.right() - option.iconSize.width() - 4);
-            }
-            else
-            {
-                textRect.setLeft(textRect.left() + option.iconSize.width() + 4);
-            }
+            painter.drawItemPixmap(m_iconRect, alignment, pixmap);
         }
 
         if (!option.text.isEmpty())
         {
-            painter.drawItemText(textRect, alignment | m_textFlags,
-                                 option.palette, option.state & QStyle::State_Enabled, option.text,
-                                 foregroundRole());
+            painter.drawItemText(m_textRect, alignment | m_textFlags, option.palette,
+                option.state & QStyle::State_Enabled, option.text, foregroundRole());
         }
     }
+
 #if 0
     if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
         uint alignment = visualAlignment(btn->direction, Qt::AlignLeft | Qt::AlignVCenter);
@@ -123,6 +112,29 @@ void MultilineCheckBox::paintEvent(QPaintEvent*)
         focusOption.rect = m_focusRect;
         painter.drawPrimitive(QStyle::PE_FrameFocusRect, focusOption);
     }
+
+
+#if 0
+    {
+        painter.setPen(Qt::red);
+        painter.drawRect(m_contentRect.adjusted(0, 0, -1, -1));
+        painter.setPen(Qt::magenta);
+        painter.drawRect(m_textRect.adjusted(0, 0, -1, -1));
+        painter.setPen(Qt::blue);
+        painter.drawRect(m_focusRect.adjusted(0, 0, -1, -1));
+        painter.setPen(Qt::green);
+        painter.drawRect(style()->subElementRect(QStyle::SE_CheckBoxIndicator, &option, this).adjusted(0, 0, -1, -1));
+        painter.setPen(Qt::yellow);
+        painter.drawRect(QRect(QPoint(0, 0), sizeForWidth(width())).adjusted(0, 0, -1, -1));
+#if 0
+        painter.setPen(Qt::cyan);
+        painter.drawRect(QRect(QPoint(0, 0), m_minimumSizeHint).adjusted(0, 0, -1, -1));
+
+        painter.setPen(Qt::black);
+        painter.drawRect(QRect(QPoint(0, 0), m_sizeHint).adjusted(0, 0, -1, -1));
+#endif
+    }
+#endif
 }
 
 QSize MultilineCheckBox::sizeHint() const
@@ -180,9 +192,9 @@ void MultilineCheckBox::recalculateTextDimensions() const
 {
     QStyleOptionButton option;
     initStyleOption(&option);
-#if 0
-    Qt::Alignment hAlign = option.direction == Qt::RightToLeft ? Qt::AlignRight : Qt::AlignLeft;
-#endif
+
+    // m_textFlags
+
     m_textFlags = Qt::TextWordWrap;
 
     if (option.text.isRightToLeft())
@@ -203,19 +215,40 @@ void MultilineCheckBox::recalculateTextDimensions() const
             m_textFlags |= Qt::TextHideMnemonic;
         }
     }
-#if 0
-    int hMargin = style()->pixelMetric(QStyle::PM_FocusFrameHMargin, &option, this);
-    int vMargin = style()->pixelMetric(QStyle::PM_FocusFrameVMargin, &option, this);
-#endif
-    m_textRect = style()->subElementRect(QStyle::SE_CheckBoxContents, &option, this);
 
-#define ADJUST 0
+    // m_contentRect
 
-#if ADJUST
-    hMargin += 1;
-    vMargin += 3;
-    m_textRect.adjust(0, 2, 0, 2);
-#endif
+    m_contentRect = style()->subElementRect(QStyle::SE_CheckBoxContents, &option, this);
+
+    // m_iconRect
+
+    m_iconRect = QRect();
+
+    if (!option.icon.isNull())
+    {
+        unsigned alignment = QStyle::visualAlignment(option.direction, Qt::AlignLeft | Qt::AlignVCenter);
+
+        m_iconRect = style()->itemPixmapRect(m_contentRect, alignment,
+            option.icon.pixmap(option.iconSize, QIcon::Normal));
+    }
+
+    // m_textRect
+
+    // As in QCommonStyle::drawControl(CE_CheckBoxLabel)
+
+    m_textRect = m_contentRect;
+
+    if (!option.icon.isNull())
+    {
+        if (option.direction == Qt::RightToLeft)
+        {
+            m_textRect.setRight(m_textRect.right() - option.iconSize.width() - 4);
+        }
+        else
+        {
+            m_textRect.setLeft(m_textRect.left() + option.iconSize.width() + 4);
+        }
+    }
 
 #if 1
     // As in QCommonStyle::subElementRect(QStyle::SE_CheckBoxFocusRect)
@@ -228,7 +261,7 @@ void MultilineCheckBox::recalculateTextDimensions() const
     else
     {
         QRect cr = QStyle::visualRect(option.direction, option.rect, style()->subElementRect(QStyle::SE_CheckBoxContents, &option, this));
-
+#if 0
         QRect iconRect;
         QRect textRect;
 
@@ -250,7 +283,11 @@ void MultilineCheckBox::recalculateTextDimensions() const
 
             if (!textRect.isEmpty())
             {
+#if 0
                 textRect.translate(iconRect.right() + 4, 0);
+#else
+                textRect.moveLeft(iconRect.right() + 4);
+#endif
             }
         }
 
@@ -258,6 +295,35 @@ void MultilineCheckBox::recalculateTextDimensions() const
         m_focusRect.adjust(-3, -2, 3, 2);
         m_focusRect = m_focusRect.intersected(option.rect);
         m_focusRect = QStyle::visualRect(option.direction, option.rect, m_focusRect);
+#else
+        QRect iconRect;
+        QRect textRect;
+
+        if (!option.icon.isNull())
+        {
+#if 1
+            iconRect = m_iconRect;
+#else
+            iconRect = QRect(QPoint(0, 0), option.iconSize);
+            iconRect.moveCenter(m_iconRect.center());
+#endif
+        }
+
+        if (!option.text.isEmpty())
+        {
+            unsigned alignment = QStyle::visualAlignment(option.direction, Qt::AlignLeft | Qt::AlignVCenter);
+
+            textRect = style()->itemTextRect(option.fontMetrics, m_textRect,
+                alignment | m_textFlags,
+                option.state & QStyle::State_Enabled,
+                option.text);
+        }
+
+        m_focusRect = iconRect | textRect;
+        m_focusRect.adjust(-3, -2, 3, 2);
+        m_focusRect = m_focusRect.intersected(option.rect);
+        //m_focusRect = QStyle::visualRect(option.direction, option.rect, m_focusRect);
+#endif
     }
 #else
 #if 0
@@ -301,13 +367,19 @@ bool MultilineCheckBox::hitButton(const QPoint& pos) const
 
     QRect hitRect = m_focusRect;
 
-    if (option.direction == Qt::RightToLeft)
+    // If the check box has an icon or text visible then extend the focus rectangle to include
+    // the check box indicator as well. However, if only indicator is shown then leave it as is.
+
+    if (!option.icon.isNull() || !option.text.isEmpty())
     {
-        hitRect.setRight(contentsRect().right());
-    }
-    else
-    {
-        hitRect.setLeft(contentsRect().left());
+        if (option.direction == Qt::RightToLeft)
+        {
+            hitRect.setRight(contentsRect().right());
+        }
+        else
+        {
+            hitRect.setLeft(contentsRect().left());
+        }
     }
 
     return hitRect.contains(pos);
@@ -318,6 +390,9 @@ bool MultilineCheckBox::hitButton(const QPoint& pos) const
 void MultilineCheckBox::resizeEvent(QResizeEvent *event)
 {
     QCheckBox::resizeEvent(event);
+
+    // Ensure that the height of the check box allows everything to be visible. Minimum size is
+    // used in sizeForWidth() calculation so we temporarily set it is zero.
 
     int minWidth = minimumWidth();
     setMinimumSize(0, 0);
@@ -332,24 +407,124 @@ int MultilineCheckBox::heightForWidth(int width) const
 
 QSize MultilineCheckBox::sizeForWidth(int width) const
 {
-    // As in QLabel
+    QStyleOptionButton option;
+    initStyleOption(&option);
+
+    // First of all, clamp the width to is minimium possible amount if it is set.
 
     if (minimumWidth() > 0)
     {
         width = qMax(width, minimumWidth());
     }
 
+    // Then we need to account for various fixed margins. The first one would be contents margin.
+
+    QSize contentsMarginSize(contentsMargins().left() + contentsMargins().right(),
+                             contentsMargins().top() + contentsMargins().bottom());
+
+    // Then there is ths icon...
+
+    QSize iconSize = option.iconSize;
+    QSize iconMarginSize = QSize(option.iconSize.width() + 4, 0);
+
+    // And we need to reserve the space for check box indicator. Calculate its size as implemented
+    // in QCommonStyle::sizeFromContents(QStyle::CT_CheckBox) along with magic numbers from there.
+
+    QSize indicatorSize;
+    QSize indicatorMarginSize;
+
+    {
+        int w = style()->pixelMetric(QStyle::PM_IndicatorWidth, &option, this);
+        int h = style()->pixelMetric(QStyle::PM_IndicatorHeight, &option, this);
+
+        int margins = 0;
+
+        if (!option.icon.isNull() || !option.text.isEmpty())
+        {
+            margins = 4 + style()->pixelMetric(QStyle::PM_CheckBoxLabelSpacing, &option, this);
+        }
+
+        indicatorSize = QSize(w, h);
+        indicatorMarginSize = QSize(w + margins, 4);
+    }
+
+    // Now we must fit the text into whatever area is left and determine the necessary height.
+    // However, if width is set to -1 then we are calculating a size hint and do not know the
+    // actual required width. We will guess a suitable width just as QLabel does.
+
+    bool tryWidth = (width < 0);
+
+    if (width < 0)
+    {
+        width = maximumWidth();
+    }
+
+    width -= iconMarginSize.width();
+    width -= contentsMarginSize.width();
+    width -= indicatorMarginSize.width();
+    width += 4;
+
+    unsigned alignment = QStyle::visualAlignment(option.direction, Qt::AlignLeft);
+    unsigned flags = m_textFlags | alignment;
+
+    QRect textRect = fontMetrics().boundingRect(0, 0, width, 2000, flags, option.text);
+
+    if (tryWidth)
+    {
+        if ((textRect.height() < 4 * fontMetrics().lineSpacing()) && (textRect.width() > width / 2))
+        {
+            textRect = fontMetrics().boundingRect(0, 0, width / 2, 2000, flags, option.text);
+        }
+
+        if ((textRect.height() < 2 * fontMetrics().lineSpacing()) && (textRect.width() > width / 4))
+        {
+            textRect = fontMetrics().boundingRect(0, 0, width / 4, 2000, flags, option.text);
+        }
+    }
+
+    // Add up the sizes and make sure that the result fits into minimum size
+    // and can hold at least the indicator.
+
+    return (textRect.size() + contentsMarginSize + indicatorMarginSize + iconMarginSize)
+            .expandedTo(minimumSize())
+            .expandedTo(indicatorSize)
+            .expandedTo(iconSize);
+
+#if 0
+
+    const QSize contentsSize(br.width() + hextra, br.height() + vextra);
+
+    QSize actualSize = (contentsSize + contentMargins).expandedTo(minimumSize());
+
+
+
+    if (tryWidth && (br.height() < 4 * fontMetrics().lineSpacing()) && (br.width() > width / 2))
+    {
+        br = fontMetrics().boundingRect(0, 0, width / 2, 2000, flags, text());
+    }
+
+    if (tryWidth && (br.height() < 2 * fontMetrics().lineSpacing()) && (br.width() > width / 4))
+    {
+        br = fontMetrics().boundingRect(0, 0, width / 4, 2000, flags, text());
+    }
+
+    // apply later, as in QCommonStyle::sizeFromContents(QStyle::CT_CheckBox).
+    actualSize.setHeight(qMax(actualSize.height(), indicatorSize.height()));
+
+
+
+
     QSize contentMargins(contentsMargins().left() + contentsMargins().right(),
                          contentsMargins().top() + contentsMargins().bottom());
 
     QRect br;
 
-    int align = Qt::AlignLeft | Qt::TextWordWrap;
+
 
     int hextra = contentMargins.width();
     int vextra = contentMargins.height();
 
-    int flags = align;
+
 
 #if 0
     if (!shortcut().isEmpty())
@@ -370,33 +545,21 @@ QSize MultilineCheckBox::sizeForWidth(int width) const
 #endif
 #endif
 
-    bool tryWidth = (width < 0) && (align & Qt::TextWordWrap);
+    bool tryWidth = (width < 0);
 
     if (width < 0)
     {
-        if (align & Qt::TextWordWrap)
-        {
-            width = maximumSize().width();
-        }
-        else
-        {
-            width = 2000;
-        }
+        width = maximumSize().width();
     }
 
     width -= hextra;
     width -= contentMargins.width();
 
-    QStyleOption option;
-    option.initFrom(this);
-
-
 #if 1
     {
         // As in QCommonStyle::sizeFromContents(QStyle::CT_CheckBox)
 
-        QStyleOptionButton option;
-        initStyleOption(&option);
+
 
         int margins = 0;
 
@@ -548,5 +711,6 @@ QSize MultilineCheckBox::sizeForWidth(int width) const
 
     const QSize contentsSize(br.width() + hextra, br.height() + vextra);
     return (contentsSize + contentsMargin).expandedTo(q->minimumSize());
+#endif
 #endif
 }

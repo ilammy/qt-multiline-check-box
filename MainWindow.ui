@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>836</width>
-    <height>128</height>
+    <height>125</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,52 +30,10 @@
      </widget>
     </item>
     <item>
-     <widget class="MultilineCheckBox" name="checkBox3">
-      <property name="text">
-       <string>&amp;Check box with short text</string>
-      </property>
-     </widget>
+     <widget class="MultilineCheckBox" name="checkBox3"/>
     </item>
     <item>
-     <widget class="QWidget" name="widget" native="true">
-      <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1">
-       <property name="spacing">
-        <number>4</number>
-       </property>
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
-       <property name="topMargin">
-        <number>0</number>
-       </property>
-       <property name="rightMargin">
-        <number>0</number>
-       </property>
-       <property name="bottomMargin">
-        <number>0</number>
-       </property>
-       <item>
-        <widget class="QCheckBox" name="checkBox">
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>&amp;Check box with very long descriptive text that can definitely span a couple of lines and even more than that</string>
-         </property>
-         <property name="wordWrap">
-          <bool>true</bool>
-         </property>
-         <property name="buddy">
-          <cstring>checkBox</cstring>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
+     <widget class="QCheckBox" name="checkBox4"/>
     </item>
    </layout>
   </widget>

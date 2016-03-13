@@ -38,6 +38,8 @@ private:
 private:
     mutable QSize m_sizeHint;
     mutable QSize m_minimumSizeHint;
+    mutable QRect m_contentRect;
+    mutable QRect m_iconRect;
     mutable QRect m_textRect;
     mutable QRect m_focusRect;
     mutable int m_textFlags;
