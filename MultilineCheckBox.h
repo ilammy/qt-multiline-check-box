@@ -20,7 +20,7 @@ public:
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
-    int heightForWidth(int) const;
+    int heightForWidth(int width) const;
 
 protected:
     bool hitButton(const QPoint& pos) const;
@@ -30,19 +30,14 @@ protected:
 private:
     Q_DISABLE_COPY(MultilineCheckBox)
 
-    void recalculateHints() const;
-    void recalculateTextDimensions() const;
+    void calculateSizeHints(QSize& sizeHint, QSize& minimumSizeHint) const;
+
+    unsigned calculateTextFlags() const;
+    unsigned calculateVisualAlignment() const;
+
+    void calculateContentRectangles(QRect& contentRect, QRect& iconRect, QRect& textRect, QRect& focusRect) const;
 
     QSize sizeForWidth(int width) const;
-
-private:
-    mutable QSize m_sizeHint;
-    mutable QSize m_minimumSizeHint;
-    mutable QRect m_contentRect;
-    mutable QRect m_iconRect;
-    mutable QRect m_textRect;
-    mutable QRect m_focusRect;
-    mutable int m_textFlags;
 };
 
 #endif // MULTILINECHECKBOX_MULTILINECHECKBOX_H
