@@ -8,6 +8,9 @@
 #define MULTILINECHECKBOX_MULTILINECHECKBOX_H
 
 #include <QCheckBox>
+#include <QScopedPointer>
+
+class MultilineCheckBoxPrivate;
 
 class MultilineCheckBox : public QCheckBox
 {
@@ -16,6 +19,7 @@ class MultilineCheckBox : public QCheckBox
 public:
     explicit MultilineCheckBox(QWidget *parent = 0);
     explicit MultilineCheckBox(const QString& text, QWidget *parent = 0);
+    ~MultilineCheckBox();
 
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
@@ -29,15 +33,9 @@ protected:
 
 private:
     Q_DISABLE_COPY(MultilineCheckBox)
+    Q_DECLARE_PRIVATE(MultilineCheckBox)
 
-    void calculateSizeHints(QSize& sizeHint, QSize& minimumSizeHint) const;
-
-    unsigned calculateTextFlags() const;
-    unsigned calculateVisualAlignment() const;
-
-    void calculateContentRectangles(QRect& contentRect, QRect& iconRect, QRect& textRect, QRect& focusRect) const;
-
-    QSize sizeForWidth(int width) const;
+    QScopedPointer<MultilineCheckBoxPrivate> d_ptr;
 };
 
 #endif // MULTILINECHECKBOX_MULTILINECHECKBOX_H
